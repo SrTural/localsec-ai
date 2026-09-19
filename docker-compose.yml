@@ -1,0 +1,57 @@
+# Docker Compose faylı - LocalSec-AI
+# Peşəkar konfiqurasiya: Healthcheck, restart siyasəti, izolyasiya edilmiş şəbəkə
+
+services:
+  # --- Vektor Bazası (Qdrant) ---
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: localsec_qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"   # REST API
+      - "6334:6334"   # gRPC API
+    volumes:
+      - ./qdrant_data:/qdrant/storage
+    networks:
+      - localsec-network
+    # Qdrant üçün xüsusi healthcheck (rəsmi obrazda 'curl' olmadığı üçün bash TCP yoxlaması edirik)
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/6333'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # --- FastAPI Tətbiqi ---
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: localsec_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app  # Kod dəyişdikcə canlı yenilənmə (hot-reload) üçün
+    environment:
+      - QDRANT_HOST=qdrant
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - PYTHONUNBUFFERED=1  # Python loglarının dərhal görünməsi üçün
+    depends_on:
+      qdrant:
+        condition: service_healthy  # Qdrant tam sağlam olmadan API başlamayacaq
+    networks:
+      - localsec-network
+    # API konteynerinin sağlamlığını yoxlamaq üçün (FastAPI root endpointinə ping atırıq)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+# --- Şəbəkə (Network) ---
+# Konteynerlərin bir-biri ilə təhlükəsiz əlaqə saxlaması üçün izolyasiya edilmiş şəbəkə
+networks:
+  localsec-network:
+    driver: bridge
