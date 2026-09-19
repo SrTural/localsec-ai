@@ -1,30 +1,104 @@
-﻿# Python
+﻿# ============================================================
+# LocalSec-AI - .gitignore
+# Peşəkar Python + Docker layihəsi üçün tam konfiqurasiya
+# ============================================================
+
+# ---------- Python ----------
 __pycache__/
 *.py[cod]
+*$py.class
 *.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ---------- Virtual Environments ----------
 env/
 venv/
 .venv/
+ENV/
+env.bak/
+venv.bak/
 
-# Environment
+# ---------- Testing ----------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+*.cover
+.cache
+
+# ---------- Environment Variables ----------
 .env
 .env.local
+.env.*.local
+*.env
+!.env.example
 
-# IDE
+# ---------- IDE / Editor ----------
 .vscode/
 .idea/
 *.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
 
-# Docker
+# ---------- Jupyter Notebook ----------
+.ipynb_checkpoints/
+*.ipynb
+
+# ---------- Docker / Data ----------
 qdrant_data/
 *.log
+!data/sample_auth.log
+docker-compose.override.yml
 
-# OS
+# ---------- OS Specific ----------
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# Output
-build/
-dist/
-*.egg-info/
+# ---------- Secrets ----------
+*.pem
+*.key
+*.crt
+secrets/
+credentials.json
+
+# ---------- AI / ML Models ----------
+*.h5
+*.pkl
+*.pt
+*.pth
+*.onnx
+models/
+checkpoints/
+
+# ---------- Logs ----------
+logs/
+*.log.*
+!data/sample_auth.log
